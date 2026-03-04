@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Recipe Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #00FFF0; /* Electric Teal */
+      --primary-color-glow: rgba(0, 255, 240, 0.2);
+      --background-color: #121418; /* Deep Slate */
+      --text-color: #E0E0E0; /* Light Grey */
+      --card-bg-color: rgba(26, 29, 36, 0.8); /* Translucent Slate with Glassmorphism */
+      --border-color: #2C303A;
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      --secondary-button-bg: #333742;
+      --secondary-button-text: #E0E0E0;
+      --placeholder-color: #6A707C;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    @keyframes aurora {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      background: linear-gradient(45deg, #121418, #1A1C22, #1F222B, #1A1C22, #121418);
+      background-size: 400% 400%;
+      animation: aurora 15s ease infinite;
+    }
+    #root {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+      transition: max-width 0.5s ease-in-out;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Global Styles for Inputs */
+    textarea:focus, input:focus {
+        outline: none;
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 8px var(--primary-color-glow) !important;
+    }
+    ::placeholder {
+      color: var(--placeholder-color);
+      opacity: 1;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #20232a;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4a4f5a;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #5a5f6a;
+    }
+
+    /* Style for range input */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      margin: 7.3px 0;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #2C303A;
+      border-radius: 5px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #2C303A;
+      border-radius: 5px;
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-ms-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+    input[type=range]::-ms-fill-lower {
+      background: #2C303A;
+      border-radius: 10px;
+    }
+    input[type=range]::-ms-fill-upper {
+      background: #2C303A;
+      border-radius: 10px;
+    }
+    input[type=range]::-ms-thumb {
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      margin-top: 0px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

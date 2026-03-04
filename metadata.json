@@ -1,0 +1,5 @@
+{
+  "name": "AI Recipe Maker with TTS",
+  "description": "An application that generates food recipes using Gemini and reads them aloud with Text-to-Speech.",
+  "requestFramePermissions": []
+}
