@@ -472,16 +472,22 @@ const chatInputStyle: React.CSSProperties = {
 // --- Models ---
 const TEXT_MODELS = [
   { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' },
-  { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro Preview' },
+  { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview' },
+  { value: 'gemini-3-pro-preview', label: 'Gemini 3.0 Pro Preview' },
+  { value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' },
   { value: 'gemini-flash-latest', label: 'Gemini Flash Latest' },
+  { value: 'gemini-flash-lite-latest', label: 'Gemini Flash Lite Latest' },
   { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
   { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
 ];
 
 const IMAGE_MODELS = [
-  { value: 'gemini-2.5-flash-image', label: 'Gemini 2.5 Flash Image' },
-  { value: 'gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash Image' },
-  { value: 'gemini-3-pro-image-preview', label: 'Gemini 3 Pro Image' },
+  { value: 'gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash Image (High Quality)' },
+  { value: 'gemini-3-pro-image-preview', label: 'Gemini 3.0 Pro Image (Premium)' },
+  { value: 'gemini-2.5-flash-image', label: 'Gemini 2.5 Flash Image (Standard)' },
+  { value: 'imagen-4.0-generate-001', label: 'Imagen 4.0' },
+  { value: 'gemini-flash-image-latest', label: 'Gemini Flash Image Latest' },
+  { value: 'gemini-pro-image-latest', label: 'Gemini Pro Image Latest' },
 ];
 
 // --- Main App Component ---
