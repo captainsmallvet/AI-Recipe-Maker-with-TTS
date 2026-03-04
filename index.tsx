@@ -185,7 +185,7 @@ const apiKeyInputStyle: React.CSSProperties = {
   fontFamily: 'monospace',
   backgroundColor: '#101216',
   color: 'var(--text-color)',
-  minWidth: '200px',
+  minWidth: '400px',
 };
 
 const titleStyle: React.CSSProperties = {
