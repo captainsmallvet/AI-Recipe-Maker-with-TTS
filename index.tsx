@@ -68,7 +68,7 @@ const translations = {
     generating: 'กำลังสร้าง...',
     readAloud: 'อ่านสูตรให้ฟัง',
     loadingAudio: 'กำลังโหลดเสียง...',
-    copy: 'คัดลอกสูตร',
+    copy: 'คัดลอก',
     copied: 'คัดลอกแล้ว! ✅',
     saveTxt: 'บันทึกเป็น .txt',
     error: 'เกิดข้อผิดพลาด:',
@@ -83,6 +83,7 @@ const translations = {
     askQuestion: 'สอบถามเกี่ยวกับสูตร',
     chatPlaceholder: 'ถามคำถามเกี่ยวกับสูตรนี้...',
     send: 'ส่ง',
+    clear: 'ลบ',
     aiTyping: 'AI กำลังพิมพ์...',
     you: 'คุณ',
     ai: 'AI',
@@ -94,6 +95,11 @@ const translations = {
     rateLimitError: 'คุณใช้โควต้า API เกินกำหนดแล้ว โปรดตรวจสอบแผนการใช้งานและการเรียกเก็บเงินของคุณใน Google AI Studio หรือรอสักครู่แล้วลองอีกครั้ง',
     textModelLabel: 'โมเดลข้อความ:',
     imageModelLabel: 'โมเดลสร้างภาพ:',
+    apiKeyRequired: 'กรุณากรอก API Key ด้านบนก่อนเริ่มใช้งาน',
+    apiKeySaved: 'บันทึก API Key ลงระบบเรียบร้อย',
+    apiKeyPleaseEnter: 'กรุณากรอก API Key',
+    apiKeyCopiedMsg: 'คัดลอก API Key ลง Clipboard แล้ว',
+    noApiKey: 'no API key',
   },
   en: {
     title: 'AI Recipe Maker',
@@ -108,7 +114,7 @@ const translations = {
     generating: 'Generating...',
     readAloud: 'Read Aloud',
     loadingAudio: 'Loading Audio...',
-    copy: 'Copy Recipe',
+    copy: 'Copy',
     copied: 'Copied! ✅',
     saveTxt: 'Save as .txt',
     error: 'An error occurred:',
@@ -123,6 +129,7 @@ const translations = {
     askQuestion: 'Ask about the recipe',
     chatPlaceholder: 'Ask a question about this recipe...',
     send: 'Send',
+    clear: 'Clear',
     aiTyping: 'AI is typing...',
     you: 'You',
     ai: 'AI',
@@ -134,6 +141,11 @@ const translations = {
     rateLimitError: 'You have exceeded your API quota. Please check your usage plan and billing details in Google AI Studio, or wait a while and try again.',
     textModelLabel: 'Text Model:',
     imageModelLabel: 'Image Model:',
+    apiKeyRequired: 'Please enter an API Key at the top first.',
+    apiKeySaved: 'API Key saved!',
+    apiKeyPleaseEnter: 'Please enter an API Key',
+    apiKeyCopiedMsg: 'API Key copied!',
+    noApiKey: 'no API key',
   }
 };
 
@@ -149,6 +161,31 @@ const appContainerStyle: React.CSSProperties = {
   border: '1px solid var(--border-color)',
   width: '100%',
   backdropFilter: 'blur(10px)',
+};
+
+const apiKeyContainerStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.75rem',
+  marginBottom: '2rem',
+  padding: '1rem',
+  backgroundColor: '#1F222A',
+  borderRadius: '8px',
+  border: '1px solid var(--border-color)',
+  flexWrap: 'wrap',
+};
+
+const apiKeyInputStyle: React.CSSProperties = {
+  flexGrow: 1,
+  padding: '0.6rem 0.8rem',
+  fontSize: '1rem',
+  borderRadius: '6px',
+  border: '1px solid var(--border-color)',
+  boxSizing: 'border-box',
+  fontFamily: 'monospace',
+  backgroundColor: '#101216',
+  color: 'var(--text-color)',
+  minWidth: '200px',
 };
 
 const titleStyle: React.CSSProperties = {
@@ -493,6 +530,10 @@ const IMAGE_MODELS = [
 // --- Main App Component ---
 
 const App = () => {
+  // --- API Key State ---
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [activeApiKey, setActiveApiKey] = useState('');
+
   const [lang, setLang] = useState<'th' | 'en'>('th');
   const [textModel, setTextModel] = useState('gemini-3-flash-preview');
   const [imageModel, setImageModel] = useState('gemini-2.5-flash-image');
@@ -558,6 +599,39 @@ const App = () => {
 
   const t = translations[lang];
   const audioSampleRate = 24000;
+
+  // --- API Key Methods ---
+  useEffect(() => {
+    const storedKey = localStorage.getItem('gemini_api_key');
+    if (storedKey) {
+      setApiKeyInput(storedKey);
+      setActiveApiKey(storedKey);
+    }
+  }, []);
+
+  const handleSaveApiKey = () => {
+    const key = apiKeyInput.trim();
+    setActiveApiKey(key);
+    if (key) {
+      localStorage.setItem('gemini_api_key', key);
+      alert(t.apiKeySaved);
+    } else {
+      alert(t.apiKeyPleaseEnter);
+    }
+  };
+
+  const handleCopyApiKey = () => {
+    if (!apiKeyInput) return;
+    navigator.clipboard.writeText(apiKeyInput);
+    alert(t.apiKeyCopiedMsg);
+  };
+
+  const handleClearApiKey = () => {
+    setApiKeyInput('');
+    setActiveApiKey('');
+    localStorage.removeItem('gemini_api_key');
+  };
+  // -------------------------
 
   const handleApiError = (error, context) => {
     console.error(`${context} Error:`, error);
@@ -818,6 +892,11 @@ const App = () => {
 
   const handleGenerateRecipe = async () => {
     if (!prompt.trim()) return;
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      return;
+    }
+
     setIsLoadingRecipe(true);
     setError(null);
     setRecipe('');
@@ -835,7 +914,7 @@ const App = () => {
       : `Generate a recipe for "${prompt}". You must clearly state the serving size in the recipe, for example, "Serves 2". Provide two versions of the content: one nicely formatted for display, and another as plain text for a text-to-speech engine where symbols are written out as words.`;
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: activeApiKey });
       const result = await ai.models.generateContent({
         model: textModel,
         contents: fullPrompt,
@@ -879,6 +958,11 @@ const App = () => {
 
   const handleGenerateImage = async () => {
     if (!filename) return;
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      return;
+    }
+
     setIsGeneratingImage(true);
     setError(null);
     setGeneratedImage(null);
@@ -888,7 +972,7 @@ const App = () => {
       : `A delicious, mouth-watering, high-quality photograph of "${filename}". Professional food photography, bright lighting, appetizing.`;
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: activeApiKey });
         const response = await ai.models.generateContent({
             model: imageModel,
             contents: {
@@ -931,6 +1015,11 @@ const App = () => {
 
   const handleRecalculateRecipe = async () => {
     if (!recipe || !servings || parseInt(servings, 10) <= 0) return;
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      return;
+    }
+
     setIsRecalculating(true);
     setError(null);
     setRecalculatedRecipe('');
@@ -949,7 +1038,7 @@ const App = () => {
         : `Here is the original recipe:\n\n${recipe}\n\nThis recipe might state its yield in different units (e.g., "1 part" or "20 pieces"). Your task is to adjust this recipe to yield **${servings} ${unitText}**.\n\n**Instructions:**\n1. Read the original recipe to understand its original yield.\n2. Calculate the scaling factor required to go from the original yield to the new target of **${servings} ${unitText}**.\n3. **Adjust only the ingredient quantities** based on this scaling factor.\n4. Update the serving size text in the recipe to clearly state **"Makes ${servings} ${unitText}"**.\n\nDo not change the instructions or any other text.`;
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: activeApiKey });
         const result = await ai.models.generateContent({
             model: textModel,
             contents: prompt,
@@ -965,6 +1054,11 @@ const App = () => {
 
   const handleGenerateTTS = async () => {
       if (isPlaying) handleStop();
+      if (!activeApiKey) {
+        setError(t.apiKeyRequired);
+        return;
+      }
+
       setIsLoadingTTS(true);
       setError(null);
       setAudioBuffer(null);
@@ -980,7 +1074,7 @@ const App = () => {
       initAudioContext();
       
       try {
-          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+          const ai = new GoogleGenAI({ apiKey: activeApiKey });
           const response = await ai.models.generateContent({
               model: "gemini-2.5-flash-preview-tts",
               contents: [{ parts: [{ text: textToSpeak }] }],
@@ -1011,6 +1105,11 @@ const App = () => {
 
   const handleGenerateRecalculatedTTS = async () => {
     if (isRecalculatedPlaying) handleRecalculatedStop();
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      return;
+    }
+
     setIsLoadingRecalculatedTTS(true);
     setError(null);
     setRecalculatedAudioBuffer(null);
@@ -1026,7 +1125,7 @@ const App = () => {
     initAudioContext();
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: activeApiKey });
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-preview-tts",
         contents: [{ parts: [{ text: textToSpeak }] }],
@@ -1057,6 +1156,10 @@ const App = () => {
   
   const handleSendChatMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      return;
+    }
 
     setIsChatLoading(true);
     const currentChatInput = chatInput;
@@ -1066,7 +1169,7 @@ const App = () => {
     try {
         let chatSession = chatRef.current;
         if (!chatSession) {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: activeApiKey });
             chatSession = ai.chats.create({
                 model: textModel,
                 config: {
@@ -1156,13 +1259,19 @@ const App = () => {
   const handleOcrFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
+    
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      event.target.value = '';
+      return;
+    }
 
     setIsExtractingText(true);
     setError(null);
     resetChat();
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: activeApiKey });
         const textPrompt = { text: "Extract all text from this image as plain text." };
         
         let allExtractedText = '';
@@ -1203,6 +1312,12 @@ const App = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (!activeApiKey) {
+      setError(t.apiKeyRequired);
+      event.target.value = '';
+      return;
+    }
+
     setIsAnalyzingImage(true);
     setError(null);
     setRecipe('');
@@ -1230,7 +1345,7 @@ const App = () => {
       };
       const textPart = { text: fullPrompt };
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: activeApiKey });
       const result = await ai.models.generateContent({
         model: textModel,
         contents: [{ parts: [textPart, imagePart] }],
@@ -1307,6 +1422,24 @@ const App = () => {
 
   return (
     <div style={dynamicAppContainerStyle}>
+      {/* API Key Section (New) */}
+      <div style={apiKeyContainerStyle}>
+        <label htmlFor="apiKey" style={{ fontWeight: 500, color: '#A0A5B0', whiteSpace: 'nowrap' }}>
+          Google AI Studio API Key:
+        </label>
+        <input
+          id="apiKey"
+          type="text"
+          value={apiKeyInput}
+          onChange={(e) => setApiKeyInput(e.target.value)}
+          placeholder={t.noApiKey}
+          style={apiKeyInputStyle}
+        />
+        <button onClick={handleSaveApiKey} style={primaryButtonStyle}>{t.send}</button>
+        <button onClick={handleCopyApiKey} style={secondaryButtonStyle} disabled={!apiKeyInput}>{t.copy}</button>
+        <button onClick={handleClearApiKey} style={secondaryButtonStyle}>{t.clear}</button>
+      </div>
+
       <h1 style={titleStyle}>{t.title}</h1>
       <p style={descriptionStyle}>{t.description}</p>
       
