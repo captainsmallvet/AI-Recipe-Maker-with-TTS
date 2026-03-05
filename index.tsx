@@ -516,6 +516,7 @@ const TEXT_MODELS = [
   { value: 'gemini-flash-lite-latest', label: 'Gemini Flash Lite Latest' },
   { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
   { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+  { value: 'gemini-pro-latest', label: 'Gemini Pro (Latest Stable)' },
 ];
 
 const IMAGE_MODELS = [
@@ -525,6 +526,10 @@ const IMAGE_MODELS = [
   { value: 'imagen-4.0-generate-001', label: 'Imagen 4.0' },
   { value: 'gemini-flash-image-latest', label: 'Gemini Flash Image Latest' },
   { value: 'gemini-pro-image-latest', label: 'Gemini Pro Image Latest' },
+  { value: 'gemini-flash-latest', label: 'gemini-flash-latest' },
+  { value: 'gemini-flash-lite-latest', label: 'gemini-flash-lite-latest' },
+  { value: 'gemini-3-flash-preview', label: 'gemini-3-flash-preview' },
+  { value: 'gemini-3.1-pro-preview', label: 'gemini-3.1-pro-preview' },
 ];
 
 // --- Main App Component ---
