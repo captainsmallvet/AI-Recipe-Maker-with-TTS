@@ -511,7 +511,7 @@ const TEXT_MODELS = [
   { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' },
   { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview' },
   { value: 'gemini-3-pro-preview', label: 'Gemini 3.0 Pro Preview' },
-  { value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' },
+  { value: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash Lite' },
   { value: 'gemini-flash-latest', label: 'Gemini Flash Latest' },
   { value: 'gemini-flash-lite-latest', label: 'Gemini Flash Lite Latest' },
   { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
