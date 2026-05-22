@@ -508,14 +508,15 @@ const chatInputStyle: React.CSSProperties = {
 
 // --- Models ---
 const TEXT_MODELS = [
-  { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' },
-  { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview' },
-  { value: 'gemini-3-pro-preview', label: 'Gemini 3.0 Pro Preview' },
-  { value: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash Lite' },
+  { value: 'gemini-3.5-flash', label: '(20)Gemini 3.5 Flash' },
+  { value: 'gemini-3-flash-preview', label: '(20)Gemini 3 Flash Preview' },
+  { value: 'gemini-3.1-pro-preview', label: '(0)Gemini 3.1 Pro Preview' },
+  { value: 'gemini-3.1-flash-lite', label: '(500)Gemini 3.1 Flash Lite' },
   { value: 'gemini-flash-latest', label: 'Gemini Flash Latest' },
   { value: 'gemini-flash-lite-latest', label: 'Gemini Flash Lite Latest' },
-  { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-  { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+  { value: 'gemini-2.5-flash', label: '(20)Gemini 2.5 Flash' },
+  { value: 'gemini-2.5-flash-lite', label: '(20)Gemini 2.5 Flash Lite' },
+  { value: 'gemini-2.5-pro', label: '(0)Gemini 2.5 Pro' },
   { value: 'gemini-pro-latest', label: 'Gemini Pro (Latest Stable)' },
 ];
 
@@ -540,7 +541,7 @@ const App = () => {
   const [activeApiKey, setActiveApiKey] = useState('');
 
   const [lang, setLang] = useState<'th' | 'en'>('th');
-  const [textModel, setTextModel] = useState('gemini-3-flash-preview');
+  const [textModel, setTextModel] = useState('gemini-3.5-flash');
   const [imageModel, setImageModel] = useState('gemini-2.5-flash-image');
   const [prompt, setPrompt] = useState('');
   const [recipe, setRecipe] = useState('');
