@@ -2,6 +2,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { GoogleGenAI, Modality, Type, Chat } from '@google/genai';
+import { 
+  fetchCentralizedAIModels, 
+  AIModelOption, 
+  FALLBACK_TEXT_MODELS, 
+  FALLBACK_IMAGE_MODELS, 
+  FALLBACK_TTS_MODELS 
+} from './src/lib/firebaseModels';
 
 // --- Helper Functions for Audio Processing ---
 
@@ -95,6 +102,7 @@ const translations = {
     rateLimitError: 'คุณใช้โควต้า API เกินกำหนดแล้ว โปรดตรวจสอบแผนการใช้งานและการเรียกเก็บเงินของคุณใน Google AI Studio หรือรอสักครู่แล้วลองอีกครั้ง',
     textModelLabel: 'โมเดลข้อความ:',
     imageModelLabel: 'โมเดลสร้างภาพ:',
+    ttsModelLabel: 'โมเดลเสียง (TTS):',
     apiKeyRequired: 'กรุณากรอก API Key ด้านบนก่อนเริ่มใช้งาน',
     apiKeySaved: 'บันทึก API Key ลงระบบเรียบร้อย',
     apiKeyPleaseEnter: 'กรุณากรอก API Key',
@@ -141,6 +149,7 @@ const translations = {
     rateLimitError: 'You have exceeded your API quota. Please check your usage plan and billing details in Google AI Studio, or wait a while and try again.',
     textModelLabel: 'Text Model:',
     imageModelLabel: 'Image Model:',
+    ttsModelLabel: 'TTS Model:',
     apiKeyRequired: 'Please enter an API Key at the top first.',
     apiKeySaved: 'API Key saved!',
     apiKeyPleaseEnter: 'Please enter an API Key',
@@ -506,33 +515,6 @@ const chatInputStyle: React.CSSProperties = {
 };
 
 
-// --- Models ---
-const TEXT_MODELS = [
-  { value: 'gemini-3.5-flash', label: '(20)Gemini 3.5 Flash' },
-  { value: 'gemini-3-flash-preview', label: '(20)Gemini 3 Flash Preview' },
-  { value: 'gemini-3.1-pro-preview', label: '(0)Gemini 3.1 Pro Preview' },
-  { value: 'gemini-3.1-flash-lite', label: '(500)Gemini 3.1 Flash Lite' },
-  { value: 'gemini-flash-latest', label: 'Gemini Flash Latest' },
-  { value: 'gemini-flash-lite-latest', label: 'Gemini Flash Lite Latest' },
-  { value: 'gemini-2.5-flash', label: '(20)Gemini 2.5 Flash' },
-  { value: 'gemini-2.5-flash-lite', label: '(20)Gemini 2.5 Flash Lite' },
-  { value: 'gemini-2.5-pro', label: '(0)Gemini 2.5 Pro' },
-  { value: 'gemini-pro-latest', label: 'Gemini Pro (Latest Stable)' },
-];
-
-const IMAGE_MODELS = [
-  { value: 'gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash Image (High Quality)' },
-  { value: 'gemini-3-pro-image-preview', label: 'Gemini 3.0 Pro Image (Premium)' },
-  { value: 'gemini-2.5-flash-image', label: 'Gemini 2.5 Flash Image (Standard)' },
-  { value: 'imagen-4.0-generate-001', label: 'Imagen 4.0' },
-  { value: 'gemini-flash-image-latest', label: 'Gemini Flash Image Latest' },
-  { value: 'gemini-pro-image-latest', label: 'Gemini Pro Image Latest' },
-  { value: 'gemini-flash-latest', label: 'gemini-flash-latest' },
-  { value: 'gemini-flash-lite-latest', label: 'gemini-flash-lite-latest' },
-  { value: 'gemini-3-flash-preview', label: 'gemini-3-flash-preview' },
-  { value: 'gemini-3.1-pro-preview', label: 'gemini-3.1-pro-preview' },
-];
-
 // --- Main App Component ---
 
 const App = () => {
@@ -541,8 +523,32 @@ const App = () => {
   const [activeApiKey, setActiveApiKey] = useState('');
 
   const [lang, setLang] = useState<'th' | 'en'>('th');
-  const [textModel, setTextModel] = useState('gemini-3.5-flash');
-  const [imageModel, setImageModel] = useState('gemini-2.5-flash-image');
+
+  // Centralized AI Models State
+  const [textModelsList, setTextModelsList] = useState<AIModelOption[]>(FALLBACK_TEXT_MODELS);
+  const [imageModelsList, setImageModelsList] = useState<AIModelOption[]>(FALLBACK_IMAGE_MODELS);
+  const [ttsModelsList, setTtsModelsList] = useState<AIModelOption[]>(FALLBACK_TTS_MODELS);
+
+  const [textModel, setTextModel] = useState<string>('gemini-3.6-flash');
+  const [imageModel, setImageModel] = useState<string>('gemini-3-pro-image');
+  const [ttsModel, setTtsModel] = useState<string>('gemini-3.1-flash-tts-preview');
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchCentralizedAIModels().then((data) => {
+      if (!isMounted) return;
+      setTextModelsList(data.textModels);
+      setImageModelsList(data.imageModels);
+      setTtsModelsList(data.ttsModels);
+
+      if (data.defaultTextModel) setTextModel(data.defaultTextModel);
+      if (data.defaultImageModel) setImageModel(data.defaultImageModel);
+      if (data.defaultTtsModel) setTtsModel(data.defaultTtsModel);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const [prompt, setPrompt] = useState('');
   const [recipe, setRecipe] = useState('');
   const [speechText, setSpeechText] = useState('');
@@ -1082,7 +1088,7 @@ const App = () => {
       try {
           const ai = new GoogleGenAI({ apiKey: activeApiKey });
           const response = await ai.models.generateContent({
-              model: "gemini-2.5-flash-preview-tts",
+              model: ttsModel,
               contents: [{ parts: [{ text: textToSpeak }] }],
               config: {
                   responseModalities: [Modality.AUDIO],
@@ -1133,7 +1139,7 @@ const App = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: activeApiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
+        model: ttsModel,
         contents: [{ parts: [{ text: textToSpeak }] }],
         config: {
           responseModalities: [Modality.AUDIO],
@@ -1454,34 +1460,54 @@ const App = () => {
           <button onClick={() => setLang('th')} style={lang === 'th' ? activeLangButtonStyle : langButtonStyle}>{t.langThai}</button>
           <button onClick={() => setLang('en')} style={lang === 'en' ? activeLangButtonStyle : langButtonStyle}>{t.langEnglish}</button>
         </div>
-        <div style={modelSelectorContainerStyle}>
-          <label htmlFor="textModelSelect" style={{ fontSize: '0.9rem', color: '#A0A5B0' }}>{t.textModelLabel}</label>
-          <select 
-            id="textModelSelect"
-            value={textModel} 
-            onChange={(e) => setTextModel(e.target.value)}
-            style={modelSelectStyle}
-            disabled={anyLoading}
-          >
-            {TEXT_MODELS.map(model => (
-              <option key={model.value} value={model.value}>{model.label}</option>
-            ))}
-          </select>
-        </div>
-        <div style={modelSelectorContainerStyle}>
-          <label htmlFor="imageModelSelect" style={{ fontSize: '0.9rem', color: '#A0A5B0' }}>{t.imageModelLabel}</label>
-          <select 
-            id="imageModelSelect"
-            value={imageModel} 
-            onChange={(e) => setImageModel(e.target.value)}
-            style={modelSelectStyle}
-            disabled={anyLoading}
-          >
-            {IMAGE_MODELS.map(model => (
-              <option key={model.value} value={model.value}>{model.label}</option>
-            ))}
-          </select>
-        </div>
+        {textModelsList.length > 0 && (
+          <div style={modelSelectorContainerStyle}>
+            <label htmlFor="textModelSelect" style={{ fontSize: '0.9rem', color: '#A0A5B0' }}>{t.textModelLabel}</label>
+            <select 
+              id="textModelSelect"
+              value={textModel} 
+              onChange={(e) => setTextModel(e.target.value)}
+              style={modelSelectStyle}
+              disabled={anyLoading}
+            >
+              {textModelsList.map(model => (
+                <option key={model.value} value={model.value}>{model.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        {imageModelsList.length > 0 && (
+          <div style={modelSelectorContainerStyle}>
+            <label htmlFor="imageModelSelect" style={{ fontSize: '0.9rem', color: '#A0A5B0' }}>{t.imageModelLabel}</label>
+            <select 
+              id="imageModelSelect"
+              value={imageModel} 
+              onChange={(e) => setImageModel(e.target.value)}
+              style={modelSelectStyle}
+              disabled={anyLoading}
+            >
+              {imageModelsList.map(model => (
+                <option key={model.value} value={model.value}>{model.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        {ttsModelsList.length > 0 && (
+          <div style={modelSelectorContainerStyle}>
+            <label htmlFor="ttsModelSelect" style={{ fontSize: '0.9rem', color: '#A0A5B0' }}>{t.ttsModelLabel}</label>
+            <select 
+              id="ttsModelSelect"
+              value={ttsModel} 
+              onChange={(e) => setTtsModel(e.target.value)}
+              style={modelSelectStyle}
+              disabled={anyLoading}
+            >
+              {ttsModelsList.map(model => (
+                <option key={model.value} value={model.value}>{model.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <textarea
